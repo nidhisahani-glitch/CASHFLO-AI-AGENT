@@ -1,0 +1,80 @@
+{
+  "section_1_basic_validation": {
+    "mandatory_fields": [
+      "invoice_number",
+      "invoice_date",
+      "vendor_gstin",
+      "po_number",
+      "grand_total"
+    ],
+    "future_date_allowed": false,
+    "handwritten_approval_threshold": 50000,
+    "duplicate_detection": true
+  },
+  "section_2_po_matching": {
+    "po_required": true,
+    "amount_tolerance_percent": 1,
+    "amount_escalation": {
+      "dept_head_threshold_percent": 1,
+      "finance_controller_threshold_percent": 10
+    },
+    "under_invoice_threshold_percent": 5,
+    "line_item_quantity_check": "invoice_qty <= po_qty",
+    "line_item_rate_tolerance_percent": 2
+  },
+  "section_3_grn_matching": {
+    "grn_required_for_goods": true,
+    "quantity_excess_action": "reject",
+    "date_check": "grn_date <= invoice_date"
+  },
+  "section_4_tax_compliance": {
+    "vendor_gstin_match_master": true,
+    "pan_gstin_cross_check": true,
+    "tax_calculation_tolerance_inr": 1,
+    "intra_state_rules": {
+      "cgst_sgst_equal": true
+    },
+    "inter_state_rules": {
+      "igst_present": true,
+      "cgst_sgst_zero": true
+    },
+    "place_of_supply_match_buyer_state": true
+  },
+  "section_5_approval_matrix": {
+    "thresholds": [
+      {
+        "max_amount": 100000,
+        "approver": "auto",
+        "exception_watchlist_approver": "department_head"
+      },
+      {
+        "min_amount": 100001,
+        "max_amount": 1000000,
+        "approver": "department_head"
+      },
+      {
+        "min_amount": 1000001,
+        "max_amount": 5000000,
+        "approver": "finance_controller"
+      },
+      {
+        "min_amount": 5000001,
+        "approver": "cfo"
+      }
+    ]
+  },
+  "section_6_notifications": {
+    "trigger_on_deviation": true,
+    "notification_deadline_minutes": 15,
+    "escalation_resolve_hours": 48,
+    "critical_deviation_threshold_percent": 10
+  },
+  "section_7_digital_validation": {
+    "qr_code_threshold_inr": 1000000,
+    "qr_code_field_match": [
+      "invoice_number",
+      "vendor_gstin"
+    ],
+    "digital_signature_recommended": true
+  }
+}

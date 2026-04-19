@@ -1,0 +1,102 @@
+.app-header {
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.app-title {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.app-subtitle {
+  color: var(--text-secondary);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.scenario-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.card-title {
+  margin-bottom: 1.5rem;
+}
+
+.result-card-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.result-card-header h2 {
+  font-size: 2.5rem;
+  margin: 1rem 0;
+}
+
+.approver-text {
+  color: var(--text-secondary);
+}
+
+.violation-title {
+  margin-bottom: 1rem;
+}
+
+.violation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.violation-item {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.violation-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.audit-log-container {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.audit-log-entry {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  border-left: 2px solid var(--glass-border);
+  padding-left: 0.75rem;
+}
+
+.app-footer {
+  margin-top: 5rem;
+  text-align: center;
+  border-top: 1px solid var(--glass-border);
+  padding: 2rem;
+}
+
+.footer-text {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}

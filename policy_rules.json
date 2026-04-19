@@ -1,0 +1,252 @@
+{
+  "SECTION 1: Invoice Receipt & Basic Validation": [
+    {
+      "rule_id": "AP-VAL-001",
+      "source_clause": "Section 1.1",
+      "condition": "any(mandatory_field_missing)",
+      "action": "FLAG",
+      "status": "INCOMPLETE",
+      "route_to": "AP_CLERK"
+    },
+    {
+      "rule_id": "AP-VAL-002",
+      "source_clause": "Section 1.2",
+      "condition": "invoice_date > current_date",
+      "action": "REJECT",
+      "reason": "Future-Dated Invoice Not Permitted"
+    },
+    {
+      "rule_id": "AP-VAL-003",
+      "source_clause": "Section 1.3",
+      "condition": "is_handwritten == true AND invoice_total > 50000",
+      "action": "REQUIRE_APPROVAL",
+      "approver": "AP_MANAGER"
+    },
+    {
+      "rule_id": "AP-VAL-004",
+      "source_clause": "Section 1.4",
+      "condition": "duplicate_invoice_detected == true",
+      "action": "HOLD",
+      "status": "POTENTIAL_DUPLICATE"
+    }
+  ],
+  "SECTION 2: Purchase Order Matching": [
+    {
+      "rule_id": "AP-PO-001",
+      "source_clause": "Section 2.1",
+      "condition": "po_exists == false",
+      "action": "REJECT",
+      "reason": "Invalid PO Reference"
+    },
+    {
+      "rule_id": "AP-PO-002",
+      "source_clause": "Section 2.2(a)",
+      "condition": "abs(invoice_total - po_amount) <= po_amount * 0.01",
+      "action": "AUTO_APPROVE"
+    },
+    {
+      "rule_id": "AP-PO-003",
+      "source_clause": "Section 2.2(b)",
+      "condition": "invoice_total > po_amount * 1.01 AND invoice_total < po_amount * 1.10",
+      "action": "ROUTE",
+      "route_to": "DEPARTMENT_HEAD"
+    },
+    {
+      "rule_id": "AP-PO-004",
+      "source_clause": "Section 2.2(c)",
+      "condition": "invoice_total >= po_amount * 1.10",
+      "action": "ESCALATE",
+      "route_to": "FINANCE_CONTROLLER",
+      "requires_justification": true
+    },
+    {
+      "rule_id": "AP-PO-005",
+      "source_clause": "Section 2.2(d)",
+      "condition": "invoice_total < po_amount * 0.95",
+      "action": "FLAG",
+      "status": "UNDER_INVOICED_VERIFY_PARTIAL_DELIVERY"
+    },
+    {
+      "rule_id": "AP-PO-006",
+      "source_clause": "Section 2.3(b)",
+      "condition": "invoice_qty > po_qty",
+      "action": "HOLD",
+      "status": "QUANTITY_EXCEEDS_PO"
+    },
+    {
+      "rule_id": "AP-PO-007",
+      "source_clause": "Section 2.3(c)",
+      "condition": "abs(invoice_rate - po_rate) > po_rate * 0.02",
+      "action": "FLAG",
+      "status": "RATE_MISMATCH",
+      "route_to": "PROCUREMENT"
+    }
+  ],
+  "SECTION 3: GRN Matching": [
+    {
+      "rule_id": "AP-GRN-001",
+      "source_clause": "Section 3.1",
+      "condition": "grn_exists == false",
+      "action": "HOLD",
+      "status": "AWAITING_GRN"
+    },
+    {
+      "rule_id": "AP-GRN-002",
+      "source_clause": "Section 3.2(a)",
+      "condition": "invoice_qty <= grn_qty",
+      "action": "ACCEPT"
+    },
+    {
+      "rule_id": "AP-GRN-003",
+      "source_clause": "Section 3.2(b)",
+      "condition": "invoice_qty > grn_qty",
+      "action": "REJECT",
+      "reason": "Invoice Qty Exceeds Received Qty",
+      "reference": "Section 2.3(b)"
+    },
+    {
+      "rule_id": "AP-GRN-004",
+      "source_clause": "Section 3.3",
+      "condition": "grn_date > invoice_date",
+      "action": "FLAG",
+      "status": "GRN_POST_DATED_VERIFY_RECEIPT_TIMELINE"
+    }
+  ],
+  "SECTION 4: Tax & Compliance": [
+    {
+      "rule_id": "AP-TAX-001",
+      "source_clause": "Section 4.1",
+      "condition": "vendor_gstin != master_gstin",
+      "action": "REJECT",
+      "reason": "GSTIN Mismatch — Update Vendor Master or Verify Invoice"
+    },
+    {
+      "rule_id": "AP-TAX-002",
+      "source_clause": "Section 4.2",
+      "condition": "pan_gstin_mismatch == true",
+      "action": "HOLD",
+      "status": "COMPLIANCE_HOLD"
+    },
+    {
+      "rule_id": "AP-TAX-003",
+      "source_clause": "Section 4.3(a)",
+      "condition": "abs((taxable_amount + tax_amount) - grand_total) > 1",
+      "action": "FLAG",
+      "status": "TAX_CALCULATION_ERROR"
+    },
+    {
+      "rule_id": "AP-TAX-004",
+      "source_clause": "Section 4.3(b)",
+      "condition": "is_intra_state == true AND (cgst == 0 OR sgst == 0 OR cgst != sgst)",
+      "action": "FLAG",
+      "status": "TAX_CALCULATION_ERROR"
+    },
+    {
+      "rule_id": "AP-TAX-005",
+      "source_clause": "Section 4.3(c)",
+      "condition": "is_inter_state == true AND (igst == 0 OR cgst > 0 OR sgst > 0)",
+      "action": "FLAG",
+      "status": "TAX_CALCULATION_ERROR"
+    },
+    {
+      "rule_id": "AP-TAX-006",
+      "source_clause": "Section 4.4",
+      "condition": "place_of_supply != buyer_state",
+      "action": "FLAG",
+      "status": "PLACE_OF_SUPPLY_MISMATCH"
+    }
+  ],
+  "SECTION 5: Approval Matrix (WITH DEPENDENCY)": [
+    {
+      "rule_id": "AP-APP-001",
+      "source_clause": "Section 5.1",
+      "condition": "invoice_total <= 100000 AND all_validations_passed == true",
+      "action": "AUTO_APPROVE"
+    },
+    {
+      "rule_id": "AP-APP-002",
+      "source_clause": "Section 5.2",
+      "condition": "invoice_total > 100000 AND invoice_total <= 1000000",
+      "action": "REQUIRE_APPROVAL",
+      "approver": "DEPARTMENT_HEAD"
+    },
+    {
+      "rule_id": "AP-APP-003",
+      "source_clause": "Section 5.3",
+      "condition": "invoice_total > 1000000 AND invoice_total <= 5000000",
+      "action": "REQUIRE_APPROVAL",
+      "approver": "FINANCE_CONTROLLER"
+    },
+    {
+      "rule_id": "AP-APP-004",
+      "source_clause": "Section 5.4",
+      "condition": "invoice_total > 5000000",
+      "action": "REQUIRE_APPROVAL",
+      "approver": "CFO"
+    },
+    {
+      "rule_id": "AP-APP-005",
+      "source_clause": "Section 5.5",
+      "condition": "vendor_watchlist == true",
+      "action": "OVERRIDE_APPROVAL",
+      "approver": "DEPARTMENT_HEAD"
+    }
+  ],
+  "SECTION 6: Notifications (FULLY STRUCTURED)": [
+    {
+      "rule_id": "AP-NOT-001",
+      "source_clause": "Section 6.1",
+      "condition": "deviation_detected == true",
+      "action": "SEND_EMAIL",
+      "within_minutes": 15,
+      "payload": [
+        "invoice_number",
+        "vendor_name",
+        "po_number",
+        "deviation_type",
+        "deviation_details",
+        "recommended_action"
+      ]
+    },
+    {
+      "rule_id": "AP-NOT-002",
+      "source_clause": "Section 6.3",
+      "condition": "deviation_unresolved_duration > 48",
+      "action": "ESCALATE",
+      "target": "NEXT_LEVEL_APPROVER"
+    },
+    {
+      "rule_id": "AP-NOT-003",
+      "source_clause": "Section 6.4",
+      "condition": "deviation_percent > 10 OR compliance_failure == true",
+      "action": "SEND_IMMEDIATE_ALERT",
+      "recipients": [
+        "FINANCE_CONTROLLER",
+        "INTERNAL_AUDIT"
+      ]
+    }
+  ],
+  "SECTION 7: QR & Digital Validation": [
+    {
+      "rule_id": "AP-DIG-001",
+      "source_clause": "Section 7.1",
+      "condition": "invoice_total > 1000000 AND qr_code_present == false",
+      "action": "HOLD",
+      "status": "QR_CODE_MISSING_E_INVOICE_COMPLIANCE_REQUIRED"
+    },
+    {
+      "rule_id": "AP-DIG-002",
+      "source_clause": "Section 7.2",
+      "condition": "qr_invoice_number != invoice_number OR qr_gstin != vendor_gstin",
+      "action": "FLAG",
+      "status": "QR_VALIDATION_FAILED"
+    },
+    {
+      "rule_id": "AP-DIG-003",
+      "source_clause": "Section 7.3",
+      "condition": "digital_signature_present == true AND digital_signature_valid == false",
+      "action": "FLAG",
+      "status": "SIGNATURE_VERIFICATION_FAILED"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "policy_name": "Procurement Policy",
+  "policy_version": "1.0",
+  "effective_date": "2024-01-01",
+  "sections": {
+    "section_1_purchase_requisition": {
+      "pr_required": true,
+      "pr_approval_threshold": 50000,
+      "mandatory_fields": [
+        "pr_number",
+        "requester_name",
+        "department",
+        "item_description",
+        "quantity",
+        "estimated_amount",
+        "business_justification"
+      ]
+    },
+    "section_2_vendorselection": {
+      "minimum_quotes_required": 3,
+      "quote_threshold_amount": 100000,
+      "vendor_qualification_required": true,
+      "vendor_blacklist_check": true,
+      "preferred_vendor_list": true
+    },
+    "section_3_purchase_order_creation": {
+      "po_types": ["Goods", "Services", "Works"],
+      "standard_payment_terms": "Net 30",
+      "approval_matrix": [
+        {
+          "max_amount": 50000,
+          "approver": "department_head"
+        },
+        {
+          "min_amount": 50001,
+          "max_amount": 500000,
+          "approver": "procurement_manager"
+        },
+        {
+          "min_amount": 500001,
+          "approver": "finance_controller"
+        }
+      ]
+    },
+    "section_4_contract_management": {
+      "contract_required_threshold": 200000,
+      "legal_review_required": true,
+      "clause_check": [
+        "termination_clause",
+        "indemnification",
+        "liability_cap",
+        "payment_terms"
+      ]
+    },
+    "section_5_receipt_acceptance": {
+      "quality_inspection_required": true,
+      "inspection_period_days": 7,
+      "acceptance_criteria": [
+        "quantity_verified",
+        "quality_standards_met",
+        "specifications_matched"
+      ]
+    },
+    "section_6_payment_processing": {
+      "payment_schedule": "Bi-weekly",
+      "early_payment_discount_threshold_days": 10,
+      "early_payment_discount_percentage": 2,
+      "payment_approval_required": true
+    }
+  }
+}
