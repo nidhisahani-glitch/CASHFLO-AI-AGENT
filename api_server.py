@@ -1,8 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from email_service import send_deviation_email, send_critical_alert
 import uvicorn
+import os
 
 app = FastAPI(title="Cashflo API")
 
@@ -34,7 +36,18 @@ class CriticalAlert(BaseModel):
 
 @app.get("/")
 def root():
+    # Check if frontend dist exists
+    if os.path.exists("web/dist/index.html"):
+        return FileResponse("web/dist/index.html")
     return {"message": "Cashflo API Running", "status": "ok"}
+
+
+@app.get("/assets/{file}")
+def static_assets(file: str):
+    asset_path = f"web/dist/assets/{file}"
+    if os.path.exists(asset_path):
+        return FileResponse(asset_path)
+    return {"error": "Not found"}
 
 
 @app.post("/send-deviation-email")

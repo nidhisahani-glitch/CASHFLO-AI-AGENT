@@ -3,3 +3,4 @@ python-dotenv
 mailtrap
 fastapi
 uvicorn
+jinja2
